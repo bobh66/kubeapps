@@ -35,9 +35,7 @@ export default function PackageVersionSelector({
       >
         {versions.map(v => (
           <option key={`package-version-selector-${v.pkgVersion}`} value={v.pkgVersion}>
-            {showAppVersion
-              ? `${v.pkgVersion} / App Version ${v.appVersion}`
-              : v.pkgVersion}
+            {showAppVersion ? `${v.pkgVersion} / App Version ${v.appVersion}` : v.pkgVersion}
             {currentVersion === v.pkgVersion ? " (current)" : ""}
           </option>
         ))}

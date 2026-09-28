@@ -287,7 +287,11 @@ it("renders the visual editor for Crossplane packages with a values schema", () 
 
   const wrapper = mountWrapper(
     defaultStore,
-    <DeploymentFormBody {...defaultProps} selected={crossplaneSelected} appValues="replicas: 1\n" />,
+    <DeploymentFormBody
+      {...defaultProps}
+      selected={crossplaneSelected}
+      appValues="replicas: 1\n"
+    />,
   );
 
   expect(wrapper.text()).toContain("Visual editor");
