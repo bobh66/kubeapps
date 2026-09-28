@@ -3,7 +3,7 @@
 
 # syntax = docker/dockerfile:1
 
-FROM ghcr.io/sap/kubeapps/bitnami-deprecated-golang:1.25-debian-12 AS builder
+FROM ghcr.io/sap/kubeapps/bitnami-deprecated-golang:1.26-debian-12 AS builder
 WORKDIR /go/src/github.com/SAP/kubeapps
 COPY go.mod go.sum ./
 ARG VERSION="devel"

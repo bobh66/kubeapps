@@ -3,7 +3,7 @@
 
 # syntax = docker/dockerfile:1
 
-FROM golang:1.25.4-alpine3.22 AS builder
+FROM golang:1.26.0-alpine3.23 AS builder
 WORKDIR /go/src/github.com/SAP/kubeapps
 COPY go.mod go.sum ./
 COPY pkg pkg
