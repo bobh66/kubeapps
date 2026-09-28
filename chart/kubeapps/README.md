@@ -187,8 +187,68 @@ In the first two cases, it is needed a certificate and a key. We would expect th
 
 | Name                       | Description                                                | Value   |
 |----------------------------|------------------------------------------------------------|---------|
-| `packaging.helm.enabled`   | Enable the standard Helm packaging.                        | `true`  |
-| `packaging.flux.enabled`   | Enable support for Flux (v2) packaging.                    | `false` |
+| `packaging.helm.enabled`        | Enable the standard Helm packaging.                        | `true`  |
+| `packaging.flux.enabled`        | Enable support for Flux (v2) packaging.                    | `false` |
+| `packaging.crossplane.enabled`  | Enable support for Crossplane XRD packaging.               | `false` |
+
+#### Crossplane XRD packaging
+
+The Crossplane plugin catalogs `CompositeResourceDefinition` objects already installed in the cluster. It does not install Crossplane and does not use package repositories. The plugin can be enabled alongside Helm (or Flux).
+
+**Prerequisites**
+
+- [Crossplane](https://docs.crossplane.io/) installed in the cluster
+- Established XRDs the user is allowed to read
+
+**Enable the plugin**
+
+```console
+helm upgrade --install kubeapps oci://ghcr.io/sap/kubeapps/kubeapps \
+  --namespace kubeapps \
+  --set packaging.crossplane.enabled=true
+```
+
+Crossplane can run together with Helm:
+
+```console
+helm upgrade --install kubeapps oci://ghcr.io/sap/kubeapps/kubeapps \
+  --namespace kubeapps \
+  --set packaging.helm.enabled=true \
+  --set packaging.crossplane.enabled=true
+```
+
+**User RBAC**
+
+Crossplane operations use the logged-in user's credentials (not the Kubeapps service account). Grant users at least:
+
+| Resource | API group | Verbs |
+|----------|-----------|-------|
+| `compositeresourcedefinitions` | `apiextensions.crossplane.io` | `get`, `list`, `watch` |
+| Claims/composites defined by catalog XRDs | *(per XRD)* | `create`, `get`, `list`, `watch`, `update`, `patch`, `delete` |
+| Composed managed resources (resource tab) | *(per provider API)* | `get`, `list` |
+
+Example `ClusterRole` fragment for catalog and lifecycle (adjust API groups/kinds for your XRDs):
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubeapps-crossplane-user
+rules:
+  - apiGroups: ["apiextensions.crossplane.io"]
+    resources: ["compositeresourcedefinitions"]
+    verbs: ["get", "list", "watch"]
+  # Example for a claim API; repeat per XRD you expose in Kubeapps:
+  - apiGroups: ["example.crossplane.io"]
+    resources: ["xwidgets"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+```
+
+Optional plugin configuration via `kubeappsapis.pluginConfig.crossplane.packages.v1alpha1`:
+
+- `deployPreference`: `claim` (default) or `composite` when an XRD defines claim names
+- `labelSelector`: limit catalog XRDs by labels
+- `nameAllowlist`: limit catalog to specific XRD names
 
 ### Frontend parameters
 
@@ -599,6 +659,9 @@ In the first two cases, it is needed a certificate and a key. We would expect th
 | `kubeappsapis.pluginConfig.helm.packages.v1alpha1.globalPackagingNamespace`                     | Custom global packaging namespace. Using this value will override the current "kubeapps release namespace + suffix" pattern and will create a new namespace if not exists.                                                                  | `""`                               |
 | `kubeappsapis.pluginConfig.flux.packages.v1alpha1.defaultUpgradePolicy`                         | Default upgrade policy generating version constraints                                                                                                                                                                                       | `none`                             |
 | `kubeappsapis.pluginConfig.flux.packages.v1alpha1.noCrossNamespaceRefs`                         | Enable this flag to disallow cross-namespace references, useful when running Flux on multi-tenant clusters                                                                                                                                  | `false`                            |
+| `kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.deployPreference`                       | Deploy claims or composites when an XRD defines claim names (`claim` or `composite`)                                                                                                                                                      | `claim`                            |
+| `kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.labelSelector`                          | Optional label selector to filter catalog XRDs                                                                                                                                                                                              | `""`                               |
+| `kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.nameAllowlist`                          | Optional list of XRD names to include in the catalog                                                                                                                                                                                        | `[]`                               |
 | `kubeappsapis.pluginConfig.resources.packages.v1alpha1.trustedNamespaces.headerName`            | Optional header name for trusted namespaces                                                                                                                                                                                                 | `""`                               |
 | `kubeappsapis.pluginConfig.resources.packages.v1alpha1.trustedNamespaces.headerPattern`         | Optional header pattern for trusted namespaces                                                                                                                                                                                              | `""`                               |
 | `kubeappsapis.image.registry`                                                                   | Kubeapps-APIs image registry                                                                                                                                                                                                                | `REGISTRY_NAME`                    |

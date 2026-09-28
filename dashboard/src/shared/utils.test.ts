@@ -23,6 +23,7 @@ import {
   getSupportedPackageRepositoryAuthTypes,
   getValueFromEvent,
   isGlobalNamespace,
+  pluginUsesPackageRepositories,
   MAX_DESC_LENGTH,
   trimDescription,
 } from "./utils";
@@ -90,6 +91,9 @@ it("getPluginIcon", () => {
   expect(getPluginIcon(new Plugin({ name: PluginNames.PACKAGES_FLUX, version: "" }))).toBe(
     fluxIcon,
   );
+  expect(getPluginIcon(new Plugin({ name: PluginNames.PACKAGES_CROSSPLANE, version: "" }))).toBe(
+    placeholder,
+  );
 });
 
 it("getPluginName", () => {
@@ -99,6 +103,9 @@ it("getPluginName", () => {
   expect(getPluginName("fluflu")).toBe("unknown plugin");
   expect(getPluginName(new Plugin({ name: PluginNames.PACKAGES_HELM, version: "" }))).toBe("Helm");
   expect(getPluginName(new Plugin({ name: PluginNames.PACKAGES_FLUX, version: "" }))).toBe("Flux");
+  expect(getPluginName(new Plugin({ name: PluginNames.PACKAGES_CROSSPLANE, version: "" }))).toBe(
+    "Crossplane",
+  );
 });
 
 it("getPluginPackageName", () => {
@@ -122,6 +129,12 @@ it("getPluginPackageName", () => {
   expect(
     getPluginPackageName(new Plugin({ name: PluginNames.PACKAGES_FLUX, version: "" }), true),
   ).toBe("Helm Charts via Flux");
+  expect(
+    getPluginPackageName(new Plugin({ name: PluginNames.PACKAGES_CROSSPLANE, version: "" })),
+  ).toBe("Crossplane XRD");
+  expect(
+    getPluginPackageName(new Plugin({ name: PluginNames.PACKAGES_CROSSPLANE, version: "" }), true),
+  ).toBe("Crossplane XRDs");
 });
 
 it("getPluginByName", () => {
@@ -131,6 +144,10 @@ it("getPluginByName", () => {
   });
   expect(getPluginByName(PluginNames.PACKAGES_FLUX)).toStrictEqual({
     name: PluginNames.PACKAGES_FLUX,
+    version: "v1alpha1",
+  });
+  expect(getPluginByName(PluginNames.PACKAGES_CROSSPLANE)).toStrictEqual({
+    name: PluginNames.PACKAGES_CROSSPLANE,
     version: "v1alpha1",
   });
   expect(getPluginByName("fluflu")).toStrictEqual({
@@ -249,4 +266,13 @@ it("isGlobalNamespace", () => {
   } as IConfig;
   expect(isGlobalNamespace("helm-global", PluginNames.PACKAGES_HELM, kubeappsConfig)).toBe(true);
   expect(isGlobalNamespace("helm-global", PluginNames.PACKAGES_FLUX, kubeappsConfig)).toBe(false);
+  expect(isGlobalNamespace("helm-global", PluginNames.PACKAGES_CROSSPLANE, kubeappsConfig)).toBe(
+    false,
+  );
+});
+
+it("pluginUsesPackageRepositories", () => {
+  expect(pluginUsesPackageRepositories(PluginNames.PACKAGES_HELM)).toBe(true);
+  expect(pluginUsesPackageRepositories(PluginNames.PACKAGES_FLUX)).toBe(true);
+  expect(pluginUsesPackageRepositories(PluginNames.PACKAGES_CROSSPLANE)).toBe(false);
 });

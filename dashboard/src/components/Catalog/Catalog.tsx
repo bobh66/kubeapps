@@ -18,7 +18,7 @@ import * as ReactRouter from "react-router-dom";
 import { Link } from "react-router-dom";
 import { IClusterServiceVersion, IStoreState } from "shared/types";
 import { app } from "shared/url";
-import { escapeRegExp, getPluginPackageName } from "shared/utils";
+import { escapeRegExp, getPluginPackageName, pluginUsesPackageRepositories } from "shared/utils";
 import PageHeader from "../PageHeader/PageHeader";
 import SearchFilter from "../SearchFilter/SearchFilter";
 import "./Catalog.css";
@@ -233,6 +233,9 @@ export default function Catalog() {
       .map(p => getPluginPackageName(p, true) || ""),
   ).sort();
   const allProviders = uniq(csvs.map(c => c.spec.provider.name));
+  const showPackageRepositoryManagement = configuredPlugins.some(p =>
+    pluginUsesPackageRepositories(p.name),
+  );
   const allCategories = uniq(
     categories
       .map(c => categoryToReadable(c))
@@ -409,13 +412,19 @@ export default function Catalog() {
         <div className="empty-catalog">
           <CdsIcon shape="bundle" />
           <p>The current catalog is empty.</p>
-          <p>
-            Manage your Package Repositories in Kubeapps by visiting the Package repositories
-            configuration page.
-          </p>
-          <Link to={app.config.pkgrepositories(cluster || "", namespace || "")}>
-            <CdsButton>Manage Package Repositories</CdsButton>
-          </Link>
+          {showPackageRepositoryManagement ? (
+            <>
+              <p>
+                Manage your Package Repositories in Kubeapps by visiting the Package repositories
+                configuration page.
+              </p>
+              <Link to={app.config.pkgrepositories(cluster || "", namespace || "")}>
+                <CdsButton>Manage Package Repositories</CdsButton>
+              </Link>
+            </>
+          ) : (
+            <></>
+          )}
           <p>
             For help managing other packaging formats, such as Flux or Carvel, please refer to the{" "}
             <a

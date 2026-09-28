@@ -342,6 +342,8 @@ kubeapps: ingress.tls
             {{- $enabledPlugins = append $enabledPlugins "fluxv2-packages" }}
           {{- else if eq $plugin "helm" }}
             {{- $enabledPlugins = append $enabledPlugins "helm-packages" }}
+          {{- else if eq $plugin "crossplane" }}
+            {{- $enabledPlugins = append $enabledPlugins "crossplane-packages" }}
           {{- else }}
             {{ $msg := printf "packaging: Unsupported packaging option: %s" $plugin }}
             {{- fail $msg }}

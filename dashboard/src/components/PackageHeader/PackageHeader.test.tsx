@@ -8,6 +8,7 @@ import {
   PackageAppVersion,
 } from "gen/kubeappsapis/core/packages/v1alpha1/packages_pb";
 import { Plugin } from "gen/kubeappsapis/core/plugins/v1alpha1/plugins_pb";
+import { PluginNames } from "shared/types";
 import PackageHeader, { IPackageHeaderProps } from "./PackageHeader";
 const testProps: IPackageHeaderProps = {
   availablePackageDetail: new AvailablePackageDetail({
@@ -75,6 +76,29 @@ it("uses the first version as default in the select input", () => {
   ];
   const wrapper = mount(<PackageHeader {...testProps} versions={versions} />);
   expect(wrapper.find("select").prop("value")).toBe("1.2.3");
+});
+
+it("labels the version selector as API version for Crossplane packages", () => {
+  const crossplaneProps = {
+    ...testProps,
+    availablePackageDetail: new AvailablePackageDetail({
+      ...testProps.availablePackageDetail,
+      availablePackageRef: {
+        ...testProps.availablePackageDetail.availablePackageRef,
+        plugin: { name: PluginNames.PACKAGES_CROSSPLANE, version: "v1alpha1" } as Plugin,
+      },
+    }),
+    versions: [
+      new PackageAppVersion({
+        pkgVersion: "v1alpha1",
+        appVersion: "",
+      }),
+    ],
+  };
+  const wrapper = mount(<PackageHeader {...crossplaneProps} />);
+  expect(wrapper.text()).toContain("API version");
+  expect(wrapper.text()).not.toContain("Package Version");
+  expect(wrapper.find("option").text()).toBe("v1alpha1");
 });
 
 it("uses the current version as default in the select input", () => {

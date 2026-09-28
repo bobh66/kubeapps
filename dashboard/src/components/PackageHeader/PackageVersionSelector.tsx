@@ -12,6 +12,7 @@ interface IPackageVersionSelectorProps {
   selectedVersion?: string;
   label?: JSX.Element | string;
   message?: string;
+  showAppVersion?: boolean;
 }
 
 export default function PackageVersionSelector({
@@ -21,6 +22,7 @@ export default function PackageVersionSelector({
   selectedVersion,
   label,
   message,
+  showAppVersion = true,
 }: IPackageVersionSelectorProps) {
   /* eslint-disable jsx-a11y/label-has-associated-control */
   return (
@@ -33,7 +35,9 @@ export default function PackageVersionSelector({
       >
         {versions.map(v => (
           <option key={`package-version-selector-${v.pkgVersion}`} value={v.pkgVersion}>
-            {v.pkgVersion} / App Version {v.appVersion}
+            {showAppVersion
+              ? `${v.pkgVersion} / App Version ${v.appVersion}`
+              : v.pkgVersion}
             {currentVersion === v.pkgVersion ? " (current)" : ""}
           </option>
         ))}

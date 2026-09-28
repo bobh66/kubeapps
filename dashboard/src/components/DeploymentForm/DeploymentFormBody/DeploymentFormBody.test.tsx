@@ -12,7 +12,8 @@ import { MonacoDiffEditor } from "react-monaco-editor";
 import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import { defaultStore, getStore, initialState, mountWrapper } from "shared/specs/mountWrapper";
-import { IPackageState } from "shared/types";
+import { Plugin } from "gen/kubeappsapis/core/plugins/v1alpha1/plugins_pb";
+import { IPackageState, PluginNames } from "shared/types";
 import BasicDeploymentForm from "./BasicDeploymentForm";
 import DeploymentFormBody, { IDeploymentFormBodyProps } from "./DeploymentFormBody";
 
@@ -264,4 +265,31 @@ it("should render a schema editor if the feature flag is enabled", () => {
       .find("input")
       .filterWhere(i => i.prop("id") === "changedPropertyName"),
   ).toExist();
+});
+
+it("renders the visual editor for Crossplane packages with a values schema", () => {
+  const crossplaneSelected = {
+    ...selected,
+    availablePackageDetail: {
+      name: "xwidgets.example.org",
+      availablePackageRef: {
+        identifier: "xwidgets.example.org",
+        plugin: { name: PluginNames.PACKAGES_CROSSPLANE, version: "v1alpha1" } as Plugin,
+      },
+    } as AvailablePackageDetail,
+    schema: {
+      properties: {
+        replicas: { type: "integer" },
+      },
+    } as unknown as JSONSchemaType<any>,
+    values: "replicas: 1\n",
+  } as IPackageState["selected"];
+
+  const wrapper = mountWrapper(
+    defaultStore,
+    <DeploymentFormBody {...defaultProps} selected={crossplaneSelected} appValues="replicas: 1\n" />,
+  );
+
+  expect(wrapper.text()).toContain("Visual editor");
+  expect(wrapper.find(BasicDeploymentForm)).toExist();
 });

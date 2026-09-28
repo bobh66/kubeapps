@@ -12,6 +12,8 @@ The Kubeapps APIs service is the main backend component of the Kubeapps project.
 
 See the [Kubeapps APIs Service Developer Guide](kubeapps-apis.md) for more information.
 
+For the optional Crossplane XRD packaging plugin, see the [Crossplane plugin developer guide](crossplane-plugin.md).
+
 ## asset-syncer
 
 The `asset-syncer` component is a tool that scans a Helm chart repository and populates chart metadata in the database. This metadata is then served by the `kubeapps-apis` component.

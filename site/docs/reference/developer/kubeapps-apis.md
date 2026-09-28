@@ -2,7 +2,7 @@
 
 The Kubeapps APIs service provides a pluggable, gRPC-based API service enabling the Kubeapps UI (or other clients) to interact with different Kubernetes packaging formats in a consistent, extensible way.
 
-The Kubeapps APIs service is bundled with three packaging plugins providing support for the Helm and Flux packaging formats, enabling users to browse and install packages of different formats.
+The Kubeapps APIs service is bundled with packaging plugins providing support for Helm, Flux, and Crossplane XRD-based packages, enabling users to browse and install packages of different formats.
 
 <!-- TODO(agamez): piece of docs requiring update. Reason: screenshots using old Kubeapps logo -->
 
@@ -36,7 +36,7 @@ func RegisterHTTPHandlerFromEndpoint(context.Context, *runtime.ServeMux, string,
 
 This allows the main `kubeapps-apis` service to load dynamically any plugins found in the specified plugin directories when the service starts. The startup process creates a gRPC server and then calls each plugin's `RegisterWithGRPCServer` function to ensure their functionality is served as part of the gRPC API and the `RegisterHTTPHandlerFromEndpoint` function to ensure that the same functionality is available via the gRPC-Gateway.
 
-So for example, as you might expect, we have a `helm/v1alpha1` plugin that provides a helm catalog and the ability to install helm packages, as well as a `resources/v1alpha1` plugin which can be enabled to provide some access to Kubernetes resources, such as the resources related to an installed package (assuming the requestor has the correct RBAC) - more on that later.
+So for example, as you might expect, we have a `helm/v1alpha1` plugin that provides a helm catalog and the ability to install helm packages, a `fluxv2/v1alpha1` plugin for Flux-managed Helm releases, an optional `crossplane/v1alpha1` plugin that catalogs CompositeResourceDefinitions (see the [Crossplane plugin guide](./crossplane-plugin.md)), as well as a `resources/v1alpha1` plugin which can be enabled to provide some access to Kubernetes resources, such as the resources related to an installed package (assuming the requestor has the correct RBAC) - more on that later.
 
 With this structure, the kubeapps-apis executable loads the compiled plugin `.so` files from the plugin directories specified on the command-line and registers them when starting. You can find more details about the plugin registration functionality in the [core plugin implementation](https://github.com/vmware-tanzu/kubeapps/blob/main/cmd/kubeapps-apis/core/plugins/v1alpha1/plugins.go).
 

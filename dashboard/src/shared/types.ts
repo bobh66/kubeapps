@@ -441,6 +441,7 @@ export enum RepositoryStorageTypes {
 export enum PluginNames {
   PACKAGES_HELM = "helm.packages",
   PACKAGES_FLUX = "fluxv2.packages",
+  PACKAGES_CROSSPLANE = "crossplane.packages",
 }
 
 // type holding the data used in the package repository form

@@ -1,0 +1,53 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xwidgets.example.org
+  annotations:
+    kubeapps.crossplane.io/display-name: Example Widget
+    kubeapps.crossplane.io/icon-url: https://example.org/icon.png
+    kubeapps.crossplane.io/description: Example Crossplane XRD for Kubeapps tests
+    kubeapps.crossplane.io/default-spec: |
+      replicas: 2
+      enabled: true
+    categories: database,examples
+spec:
+  group: example.crossplane.io
+  scope: LegacyCluster
+  names:
+    kind: XWidget
+    plural: xwidgets
+  claimNames:
+    kind: XWidgetClaim
+    plural: xwidgetclaims
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                replicas:
+                  type: integer
+                  default: 1
+                enabled:
+                  type: boolean
+                mode:
+                  type: string
+                  enum:
+                    - fast
+                    - safe
+                config:
+                  type: object
+                  properties:
+                    size:
+                      type: string
+                      default: small
+              x-kubernetes-preserve-unknown-fields: true
+status:
+  conditions:
+    - type: Established
+      status: "True"

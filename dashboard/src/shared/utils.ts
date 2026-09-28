@@ -124,6 +124,8 @@ export function getPluginIcon(plugin?: Plugin | string) {
         return helmIcon;
       case PluginNames.PACKAGES_FLUX:
         return fluxIcon;
+      case PluginNames.PACKAGES_CROSSPLANE:
+        return placeholder;
       default:
         return placeholder;
     }
@@ -149,6 +151,8 @@ export function getPluginName(plugin?: Plugin | string) {
         return "Helm";
       case PluginNames.PACKAGES_FLUX:
         return "Flux";
+      case PluginNames.PACKAGES_CROSSPLANE:
+        return "Crossplane";
       default:
         return plugin?.name;
     }
@@ -165,6 +169,8 @@ export function getPluginPackageName(plugin?: Plugin | PluginNames | string, plu
         return plural ? "Helm Charts" : "Helm Chart";
       case PluginNames.PACKAGES_FLUX:
         return plural ? "Helm Charts via Flux" : "Helm Chart via Flux";
+      case PluginNames.PACKAGES_CROSSPLANE:
+        return plural ? "Crossplane XRDs" : "Crossplane XRD";
       case "operator":
         return plural ? "Operators" : "Operator";
       default:
@@ -176,6 +182,8 @@ export function getPluginPackageName(plugin?: Plugin | PluginNames | string, plu
         return plural ? "Helm Charts" : "Helm Chart";
       case PluginNames.PACKAGES_FLUX:
         return plural ? "Helm Charts via Flux" : "Helm Chart via Flux";
+      case PluginNames.PACKAGES_CROSSPLANE:
+        return plural ? "Crossplane XRDs" : "Crossplane XRD";
       default:
         return `${plugin?.name ? plugin.name : "unknown"} ${plural ? "packages" : "package"}`;
     }
@@ -193,6 +201,11 @@ export function getPluginByName(pluginName: PluginNames | string) {
     case PluginNames.PACKAGES_FLUX:
       return {
         name: PluginNames.PACKAGES_FLUX,
+        version: "v1alpha1",
+      } as Plugin;
+    case PluginNames.PACKAGES_CROSSPLANE:
+      return {
+        name: PluginNames.PACKAGES_CROSSPLANE,
         version: "v1alpha1",
       } as Plugin;
     default:
@@ -214,6 +227,18 @@ export function getPluginsRequiringSA(): string[] {
 
 export function getPluginsSupportingRollback(): string[] {
   return [PluginNames.PACKAGES_HELM];
+}
+
+export function pluginUsesPackageRepositories(pluginName?: string): boolean {
+  switch (pluginName) {
+    case PluginNames.PACKAGES_CROSSPLANE:
+      return false;
+    case PluginNames.PACKAGES_HELM:
+    case PluginNames.PACKAGES_FLUX:
+      return true;
+    default:
+      return true;
+  }
 }
 
 export function getAppStatusLabel(
@@ -274,6 +299,7 @@ export function isGlobalNamespace(namespace: string, pluginName: string, kubeapp
       return namespace === kubeappsConfig.helmGlobalNamespace;
     // Currently, Flux doesn't support global repositories
     case PluginNames.PACKAGES_FLUX:
+    case PluginNames.PACKAGES_CROSSPLANE:
       return false;
     default:
       return false;
@@ -290,6 +316,7 @@ export function getGlobalNamespaceOrNamespace(
       return kubeappsConfig.helmGlobalNamespace;
     // Currently, Flux doesn't support global repositories, so returning the namespace so we have a value
     case PluginNames.PACKAGES_FLUX:
+    case PluginNames.PACKAGES_CROSSPLANE:
       return namespace;
     default:
       return "unknown";

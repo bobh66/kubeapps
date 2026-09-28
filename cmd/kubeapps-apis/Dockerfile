@@ -87,6 +87,15 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     -o /resources-v1alpha1-plugin.so -buildmode=plugin \
     ./cmd/kubeapps-apis/plugins/resources/v1alpha1/*.go
 
+## Build 'crossplane' plugin, version 'v1alpha1'
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    GOPROXY="https://proxy.golang.org,direct" \
+    go build \
+    -ldflags "-X main.version=$VERSION" \
+    -o /crossplane-packages-v1alpha1-plugin.so -buildmode=plugin \
+    ./cmd/kubeapps-apis/plugins/crossplane/packages/v1alpha1/*.go
+
 # Note: unlike the other docker images for go, we cannot use scratch as the plugins
 # are loaded using the dynamic linker.
 FROM bitnami/minideb:bookworm
@@ -95,6 +104,7 @@ COPY --from=builder /go/src/github.com/SAP/kubeapps/kubeapps-apis /kubeapps-apis
 COPY --from=builder /fluxv2-packages-v1alpha1-plugin.so /plugins/fluxv2-packages/
 COPY --from=builder /helm-packages-v1alpha1-plugin.so /plugins/helm-packages/
 COPY --from=builder /resources-v1alpha1-plugin.so /plugins/resources/
+COPY --from=builder /crossplane-packages-v1alpha1-plugin.so /plugins/crossplane-packages/
 COPY --from=builder /bin/grpc_health_probe /bin/
 
 # Ensure the container user will be able to write to the k8s discovery client cache.

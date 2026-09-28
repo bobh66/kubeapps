@@ -9,6 +9,7 @@ import {
 import placeholder from "icons/placeholder.svg";
 import React from "react";
 import { Tooltip } from "react-tooltip";
+import { PluginNames } from "shared/types";
 import "./PackageHeader.css";
 import PackageVersionSelector from "./PackageVersionSelector";
 import { CdsIcon } from "@cds/react/icon";
@@ -34,6 +35,9 @@ export default function PackageHeader({
   selectedVersion,
   hideVersionsSelector,
 }: IPackageHeaderProps) {
+  const isCrossplanePackage =
+    availablePackageDetail?.availablePackageRef?.plugin?.name === PluginNames.PACKAGES_CROSSPLANE;
+
   return availablePackageDetail?.availablePackageRef?.identifier ? (
     <PageHeader
       title={
@@ -56,24 +60,39 @@ export default function PackageHeader({
               onSelect={onSelect}
               selectedVersion={selectedVersion}
               currentVersion={currentVersion}
+              showAppVersion={!isCrossplanePackage}
               label={
-                <>
-                  <span data-tooltip-id="package-versions-tooltip">
-                    Package Version <CdsIcon shape="info-circle" size="sm" solid={true} />
-                  </span>
-                </>
+                isCrossplanePackage ? (
+                  <>
+                    <span data-tooltip-id="package-versions-tooltip">
+                      API version <CdsIcon shape="info-circle" size="sm" solid={true} />
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span data-tooltip-id="package-versions-tooltip">
+                      Package Version <CdsIcon shape="info-circle" size="sm" solid={true} />
+                    </span>
+                  </>
+                )
               }
             />
             <Tooltip id="package-versions-tooltip" place="bottom-end" clickable={true}>
-              Package and application versions can be increased independently.{" "}
-              <a
-                href="https://helm.sh/docs/topics/charts/#charts-and-versioning"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                More info here
-              </a>
-              .{" "}
+              {isCrossplanePackage ? (
+                <>Select the API version served by the CompositeResourceDefinition.</>
+              ) : (
+                <>
+                  Package and application versions can be increased independently.{" "}
+                  <a
+                    href="https://helm.sh/docs/topics/charts/#charts-and-versioning"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    More info here
+                  </a>
+                  .{" "}
+                </>
+              )}
             </Tooltip>
           </>
         )

@@ -184,9 +184,11 @@ ingress:
 ## @section Kubeapps packaging options
 ## Note: the helm and flux plugins are mutually exclusive, you can only
 ## enable one or the other since they both operate on Helm release objects.
+## The crossplane plugin can be enabled alongside helm or flux.
 ## Enabling flux does *not* install the required
 ## Flux controllers on your cluster. Please read the documentation for running
 ## Kubeapps with Flux support.
+## Enabling crossplane does *not* install Crossplane on your cluster.
 packaging:
   ## Default helm packaging
   ## @param packaging.helm.enabled Enable the standard Helm packaging.
@@ -195,6 +197,10 @@ packaging:
   ## Flux (v2) packaging
   ## @param packaging.flux.enabled Enable support for Flux (v2) packaging.
   flux:
+    enabled: false
+  ## Crossplane XRD packaging
+  ## @param packaging.crossplane.enabled Enable support for Crossplane XRD packaging.
+  crossplane:
     enabled: false
 ## @section Frontend parameters
 
@@ -1843,6 +1849,15 @@ kubeappsapis:
           defaultUpgradePolicy: none
           ## @param kubeappsapis.pluginConfig.flux.packages.v1alpha1.noCrossNamespaceRefs Enable this flag to disallow cross-namespace references, useful when running Flux on multi-tenant clusters
           noCrossNamespaceRefs: false
+    crossplane:
+      packages:
+        v1alpha1:
+          ## @param kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.deployPreference Deploy claims or composites when an XRD defines claim names (claim|composite)
+          deployPreference: claim
+          ## @param kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.labelSelector Optional label selector to filter catalog XRDs
+          labelSelector: ""
+          ## @param kubeappsapis.pluginConfig.crossplane.packages.v1alpha1.nameAllowlist Optional list of XRD names to include in the catalog
+          nameAllowlist: []
     resources:
       packages:
         v1alpha1:
